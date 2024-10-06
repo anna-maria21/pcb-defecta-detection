@@ -12,6 +12,8 @@ from classify import classify
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import render
+import logging
 
 from .models import PcbImage
 from .serializers import ProcessedImageSerializer
@@ -19,7 +21,7 @@ from .serializers import ProcessedImageSerializer
 
 @login_required(login_url='/login')
 def home(request):
-    return HttpResponse("Hello, world!")
+    return render(request, 'index.html')
 
 
 def sign_up(request):
@@ -70,3 +72,6 @@ class ImageUploadView(APIView):
 
 def classify(image):
     classify(image)
+
+def process(request):
+    logging.debug(request)

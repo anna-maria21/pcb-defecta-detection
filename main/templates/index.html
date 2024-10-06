@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Головна сторінка</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"> <!-- Ваш власний CSS -->
+</head>
+
+<body>
+  <header>
+    <div class="header">
+      <a href="#" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
+      <div class="header-right">
+
+        <a class="active" href="#login">Вхід</a>
+        <a href="#register">Реєстрація</a>
+
+      </div>
+    </div>
+
+    <div class="main-heading">
+      <h1><span id="HELLO_THIS_IS_MY_FIRST_HEADER-3">Сканування дефектів друкованих плат</span></h1>
+      <p class="small-padding">Щоб перевірити плату на наявність дефектів, оберіть картинку для сканування та моделі, які хочете використати. Для того, щоб залишити відгук про ефективність моделей, увійдіть в акаунт.</p>
+    </div>
+  </header>
+
+  <div class="body-content">
+      <form class="custom__form form-positions">
+          {% csrf_token %}
+          <input type="file"
+                 id="image-file"
+                 accept="image/x-png, image/jpeg"
+                 style="display : none"
+          />
+          <label id="image-label" for="image-file">Виберіть картинку</label>
+          <br />
+
+          <p class="error" id="image-error" style="display: none"></p>
+
+          <div class="flex-content">
+              <div class="block">
+                  <p class="small-padding beautiful">Оберіть модель локалізації</p>
+                  <select class="custom-select" id="localization">
+                      <option value="1">Yolo v8</option>
+                      <option value="2">Faster CNN</option>
+                  </select>
+              </div>
+              <div class="block">
+                  <p class="small-padding beautiful">Оберіть модель класифікації</p>
+                  <select class="custom-select" id="classification">
+                      <option value="1">VGG16</option>
+                      <option value="2">Huy znaye</option>
+                  </select>
+              </div>
+          </div>
+          <div class="form__controls small-padding">
+              <button type="button" id="process-button" class="btn btn-success btn-lg">Process Image</button>
+          </div>
+      </form>
+  </div>
+
+
+  <script>
+     const input_file = document.getElementById('image-file');
+     const input_label = document.getElementById('image-label');
+     const process_button = document.getElementById('process-button');
+     const image_error = document.getElementById('image-error');
+     let my_image = '';
+
+     const convert_to_base64 = file => new Promise((response) => {
+        const file_reader = new FileReader();
+        file_reader.readAsDataURL(file);
+        file_reader.onload = () => response(file_reader.result);
+     });
+
+     input_file.addEventListener('change', async function(){
+       const file = document.querySelector('#image-file').files;
+       my_image = await convert_to_base64(file[0]);
+       input_label.style.backgroundImage =`url(${my_image})`
+     });
+
+     process_button.addEventListener('click', async function(){
+         if (my_image === '') {
+             image_error.style.display = "block";
+             image_error.textContent = "Фото - обов'язкове поле";
+         } else {
+             image_error.style.display = "none";
+             image_error.textContent = "";
+
+             const loc_model = document.getElementById('localization');
+             const class_model = document.getElementById('classification');
+             const data = {
+                 image: my_image,
+                 localization_model: loc_model.value,
+                 classification_model: class_model.value
+             }
+             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+             const formData = JSON.stringify(data);
+
+             fetch('/api/process-image/', {
+                 method: 'POST',
+                 body: formData,
+                 headers: {
+                     'X-CSRFToken': csrfToken,
+                 },
+             })
+             .then(response => response.json())
+             .then(data => {
+                 console.log(data);
+             })
+             .catch(error => console.error('Error:', error));
+         }
+     });
+  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

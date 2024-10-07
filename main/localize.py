@@ -7,15 +7,15 @@ from main.classify import classify
 
 
 def localize(image, localization_model_str, classification_model_str):
-    yolo_model = YOLO('D:/магістерська/pcb_defects_detection/main/ai-models/my-model.pt')
+    yolo_model = '' #YOLO('D:/магістерська/pcb_defects_detection/main/ai-models/my-model.pt')
     vgg16_model = ''
     models_dict = {'1': yolo_model, '3': vgg16_model}
     localization_model = models_dict[localization_model_str]
     classification_model = models_dict[classification_model_str]
 
-    result = localization_model(image)
+    # result = localization_model(image)
 
-    cropped_image = crop_image(image, result)
+    # cropped_image = crop_image(image, result)
 
 
 def crop_image(image, results):

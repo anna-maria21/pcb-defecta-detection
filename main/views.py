@@ -1,33 +1,23 @@
+import base64
 import hashlib
-
-from django.core.files.uploadedfile import UploadedFile
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-
-from .forms import RegistrationForm
-from django.contrib.auth import login, logout, authenticate
-# from classify import classify
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import render
 import logging
+import os
 
-from .models import PcbImage
-from .serializers import ProcessedImageSerializer
+from django.contrib.auth import login, logout
+from django.shortcuts import redirect
+from django.shortcuts import render
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from main.forms import RegistrationForm
+from main.localize import localize
+from main.models import PcbImage
+
 
 def home(request):
     return render(request, 'index.html')
 
-def logoutUser(request):
-    logout(request)
-    return render(request, 'registration/login.html')
-
-@login_required(login_url='/login')
-def home_logged(request):
-    return render(request, 'index.html')
 
 def sign_up(request):
     if request.method == 'POST':
@@ -35,7 +25,7 @@ def sign_up(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('/home-logged')
+            return redirect('/home')
     else:
         form = RegistrationForm()
 
@@ -44,37 +34,47 @@ def sign_up(request):
 
 class ImageUploadView(APIView):
     def post(self, request, *args, **kwargs):
-        image_file = request.FILES.get('image')
+        try:
+            # Extract data from request
+            image_data = request.data.get('image')
+            localization_model = request.data.get('localization_model')
+            classification_model = request.data.get('classification_model')
 
-        if not image_file:
-            return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+            # Decode the base64 image data
+            header, encoded = image_data.split(',', 1)
+            image_format = header.split('/')[1].split(';')[0]  # Extract the image format (e.g., 'jpeg')
+            image_bytes = base64.b64decode(encoded)
 
-        # Calculate the hash of the image
-        image_hash = self.get_image_hash(image_file)
+            # Save the image to the project folder
+            image_name = f"pcb_image_{PcbImage.objects.count() + 1}.{image_format}"
+            image_path = 'D:/магістерська/pcb_defects_detection/main/uploaded_images/'
+            output_path = os.path.join(image_path, image_name)
 
-        # Check if the image has been processed before
-        if PcbImage.objects.filter(image_hash=image_hash).exists():
-            return Response({"message": "Image has already been processed"}, status=status.HTTP_200_OK)
+            # Write the decoded bytes to the file
+            with open(output_path, "wb") as image_file:
+                image_file.write(image_bytes)
 
-        # Process the image (this is where you'd put your image processing code)
-        # Example: save metadata and mark as processed
-        processed_image = PcbImage.objects.create(
-            photo_name=image_file.name,
-            image_hash=image_hash,
-            photo_location='D:/магістерська/pcb_defects_detection/main/uploaded_images/'
-        )
+            # Save data to the database
+            pcb_image = PcbImage.objects.create(
+                photo_location=image_path,
+                image_hash=hashlib.sha256(image_bytes).hexdigest()
+            )
 
-        serializer = ProcessedImageSerializer(processed_image)
-        # classify(image_file)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            localization_model = localize(image_path + image_name, localization_model, classification_model)
 
-    def get_image_hash(self, image_file: UploadedFile) -> str:
-        hasher = hashlib.sha256()
-        for chunk in image_file.chunks():
-            hasher.update(chunk)
-        return hasher.hexdigest()
+            return Response({"message": "Image uploaded successfully", "image_id": pcb_image.id}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def classify(image):
+    classify(image)
 
 
 def process(request):
-    logging.info('jhjh')
-    return render(request, 'index.html')
+    logging.debug(request)
+
+
+def logoutUser(request):
+    logout(request)
+    return redirect('login')

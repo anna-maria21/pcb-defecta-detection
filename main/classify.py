@@ -1,2 +1,2 @@
-def classify(request):
+def classify(image):
     pass

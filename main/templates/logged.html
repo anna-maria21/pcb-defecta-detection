@@ -15,13 +15,9 @@
     <div class="header">
       <a href="#" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
       <div class="header-right">
-        {% if user.is_authenticated %}
-            <p class="welcome-text">Ласкаво просимо, {{user}}</p>
-            <a href="/logout" id="logout-button">Вийти</a>
-        {% else %}
-            <a id="login-button">Вхід</a>
-            <a id="sign-up-button">Реєстрація</a>
-        {% endif %}
+
+        <a id="logout-button">Вийти</a>
+
       </div>
     </div>
 
@@ -61,11 +57,7 @@
               </div>
           </div>
           <div class="form__controls small-padding">
-              {% if user.is_authenticated %}
-                <button type="button" id="process-button" class="btn btn-success btn-lg">Process Image</button>
-              {% else %}
-                  <p class="error">Для сканування увійдіть в акаунт</p>
-              {% endif %}
+              <button type="button" id="process-button" class="btn btn-success btn-lg">Process Image</button>
           </div>
       </form>
   </div>

@@ -61,6 +61,19 @@ header {
 }
 
 .header a {
+  cursor: pointer;
+  float: left;
+  color: rgb(255, 255, 255);
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 24px;
+  line-height: 40px;
+  border-radius: 4px;
+}
+
+.welcome-text {
+  margin: 0;
   float: left;
   color: rgb(255, 255, 255);
   text-align: center;

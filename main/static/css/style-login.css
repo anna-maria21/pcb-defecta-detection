@@ -1,0 +1,80 @@
+body, html {
+  margin: 0;
+  height: 100%;
+}
+
+.background-image {
+  background-image: url('../images/login.png');
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* затемнення (50%) */
+  z-index: 1; /* накладаємо поверх фонової картинки */
+}
+
+.content {
+  position: relative;
+  z-index: 2; /* поверх затемнення */
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.login-form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Центрування по вертикалі та горизонталі */
+  background-color: white;
+  padding: 40px;
+  border-radius: 15px; /* Заокруглені кути */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тінь для елементу */
+  z-index: 2; /* Поверх фону та затемнення */
+  width: 700px;
+  text-align: center;
+}
+
+.error-text {
+  color: rgb(243, 104, 104);
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.error {
+  display: flex;
+  padding: 1px;
+}
+
+input[type="email"], input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px; /* Заокруглені кути полів */
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #4cae4c;
+}

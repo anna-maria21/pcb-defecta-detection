@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import RegistrationForm
 from django.contrib.auth import login, logout, authenticate
-from classify import classify
+# from classify import classify
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -18,11 +18,16 @@ import logging
 from .models import PcbImage
 from .serializers import ProcessedImageSerializer
 
-
-@login_required(login_url='/login')
 def home(request):
     return render(request, 'index.html')
 
+def logoutUser(request):
+    logout(request)
+    return render(request, 'registration/login.html')
+
+@login_required(login_url='/login')
+def home_logged(request):
+    return render(request, 'index.html')
 
 def sign_up(request):
     if request.method == 'POST':
@@ -30,7 +35,7 @@ def sign_up(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('/home')
+            return redirect('/home-logged')
     else:
         form = RegistrationForm()
 
@@ -60,7 +65,7 @@ class ImageUploadView(APIView):
         )
 
         serializer = ProcessedImageSerializer(processed_image)
-        classify(image_file)
+        # classify(image_file)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_image_hash(self, image_file: UploadedFile) -> str:
@@ -70,8 +75,6 @@ class ImageUploadView(APIView):
         return hasher.hexdigest()
 
 
-def classify(image):
-    classify(image)
-
 def process(request):
-    logging.debug(request)
+    logging.info('jhjh')
+    return render(request, 'index.html')

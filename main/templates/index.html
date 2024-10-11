@@ -49,14 +49,14 @@
                   <p class="small-padding beautiful">Оберіть модель локалізації</p>
                   <select class="custom-select" id="localization">
                       <option value="1">Yolo v8</option>
-                      <option value="2">Faster CNN</option>
+                      <option value="2">Faster R-CNN</option>
                   </select>
               </div>
               <div class="block">
                   <p class="small-padding beautiful">Оберіть модель класифікації</p>
                   <select class="custom-select" id="classification">
-                      <option value="1">VGG16</option>
-                      <option value="2">Huy znaye</option>
+                      <option value="3">VGG16</option>
+                      <option value="4">Huy znaye</option>
                   </select>
               </div>
           </div>
@@ -92,25 +92,28 @@
        input_label.style.backgroundImage =`url(${my_image})`
      });
 
-     login_button.addEventListener('click', async function(){
-         fetch('/login', {
-             method: 'GET',
-         })
-          .then(data => {
-              window.location.href = data.url
-          })
-          .catch(error => console.error('Error:', error));
-     });
+    if (login_button) {
 
-     signup_button.addEventListener('click', async function(){
-         fetch('/sign-up', {
-             method: 'GET',
-         })
-          .then(data => {
-              window.location.href = data.url
-          })
-          .catch(error => console.error('Error:', error));
-     });
+         login_button.addEventListener('click', async function(){
+             fetch('/login', {
+                 method: 'GET',
+             })
+              .then(data => {
+                  window.location.href = data.url
+              })
+              .catch(error => console.error('Error:', error));
+         });
+
+         signup_button.addEventListener('click', async function(){
+             fetch('/sign-up', {
+                 method: 'GET',
+             })
+              .then(data => {
+                  window.location.href = data.url
+              })
+              .catch(error => console.error('Error:', error));
+         });
+     }
 
      process_button.addEventListener('click', async function(){
          if (my_image === '') {

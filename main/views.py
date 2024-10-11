@@ -60,7 +60,7 @@ class ImageUploadView(APIView):
                 image_hash=hashlib.sha256(image_bytes).hexdigest()
             )
 
-            localization_model = localize(image_path + image_name, localization_model, classification_model)
+            localize(image_path + image_name, localization_model, classification_model)
 
             return Response({"message": "Image uploaded successfully", "image_id": pcb_image.id}, status=status.HTTP_201_CREATED)
         except Exception as e:

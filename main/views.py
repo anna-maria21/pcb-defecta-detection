@@ -1,6 +1,5 @@
 import base64
 import hashlib
-import logging
 import os
 import cv2
 
@@ -59,7 +58,7 @@ class ImageUploadView(APIView):
 
         try:
             if pcb_image is None or defects is None:
-                image_path = 'D:/магістерська/pcb_defects_detection/main/uploaded_images/'
+                image_path = 'main/uploaded_images/'
                 pcb_image = PcbImage.objects.create(
                     photo_location=image_path,
                     image_hash=image_hash
@@ -89,14 +88,13 @@ class ImageUploadView(APIView):
                 image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 message="Already processed image, results retrieved from the database"
                 result = draw_bboxes(image_rgb, locations, classes)
-            return Response({
+            return render(request, 'results.html', {
                              "message": message,
                              "image_id": pcb_image.id,
                              "result": result,
                              "classification_model": classification_model,
                              "localization_model": localization_model
-                             },
-                status=status.HTTP_201_CREATED
+                             }
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -106,10 +104,12 @@ def classify(image):
     classify(image)
 
 
-def process(request):
-    logging.debug(request)
-
-
-def logoutUser(request):
+def logout_user(request):
     logout(request)
     return redirect('login')
+
+
+class RatingSaveView(APIView):
+    def post(self, request, *args, **kwargs):
+        # @todo: save rating to db
+        return Response({'message': 'success'}, 200)

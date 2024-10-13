@@ -13,7 +13,7 @@
 <body>
   <header>
     <div class="header">
-      <a href="#" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
+      <a href="/" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
       <div class="header-right">
         {% if user.is_authenticated %}
             <p class="welcome-text">Ласкаво просимо, {{user}}</p>
@@ -71,7 +71,8 @@
           </div>
       </form>
   </div>
-
+  <div class="header block" id="rating-content">
+  </div>
 
   <script>
      const input_file = document.getElementById('image-file');
@@ -88,6 +89,42 @@
         file_reader.readAsDataURL(file);
         file_reader.onload = () => response(file_reader.result);
      });
+
+     window.addEventListener('load', function () {
+         const container = document.getElementById('rating-content');
+         let ratings = "{{marks}}"
+         ratings = ratings .replace(/&#x27;/g, "'")
+            .replace(/Decimal\('([\d\.]+)'\)/g, '$1');
+         ratings = JSON.parse(ratings.replace(/'/g, '"'))
+
+         ratings.forEach(function (item) {
+              const divEl = document.createElement('div');
+              divEl.className = 'block';
+
+              const newElement = document.createElement('p');
+              newElement.className = 'welcome-text'
+              newElement.textContent = 'Рейтинг моделей ';
+
+              const models = document.createElement('strong')
+              models.textContent = item.classification_model_id + ' + ' + item.localization_model_id;
+              models.style.fontStyle = 'italic';
+
+              const rating = document.createElement('span')
+              rating.textContent = ': ' + item.mark + '.0 ';
+              rating.style.fontStyle = 'italic';
+
+              const star = document.createElement('span')
+              star.textContent = '★';
+              star.style.fontSize = '30px'
+              star.style.color = 'gold'
+
+              newElement.appendChild(models)
+              newElement.appendChild(rating)
+              newElement.appendChild(star)
+              divEl.appendChild(newElement)
+              container.appendChild(divEl);
+         })
+     })
 
      input_file.addEventListener('change', async function(){
        const file = document.querySelector('#image-file').files;

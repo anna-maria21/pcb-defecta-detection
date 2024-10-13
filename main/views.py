@@ -16,7 +16,6 @@ from main.localize import localize
 from main.models import PcbImage, Location, Defect, ModelsRating
 from main.utils import draw_bboxes
 
-
 def home(request):
     marks = ModelsRating.objects.values('localization_model_id', 'classification_model_id').annotate(mark=Avg('rating'))
     models = apps.get_app_config('main').models_map
@@ -27,7 +26,6 @@ def home(request):
         marks_list.append(mark)
 
     return render(request, 'index.html', {"marks": marks_list})
-
 
 def sign_up(request):
     if request.method == 'POST':

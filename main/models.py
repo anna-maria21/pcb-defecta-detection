@@ -11,8 +11,8 @@ class PcbImage(models.Model):
 
 class Location(models.Model):
     x_min = models.IntegerField()
-    x_max = models.IntegerField()
     y_min = models.IntegerField()
+    x_max = models.IntegerField()
     y_max = models.IntegerField()
     image_id = models.IntegerField()
 
@@ -32,7 +32,7 @@ class ModelsRating(models.Model):
 class Defect(models.Model):
     image_id = models.IntegerField()
     user_id = models.IntegerField()
-    type = models.CharField(max_length=255)
+    type_id = models.IntegerField()
     localization_model_id = models.IntegerField()
     classification_model_id = models.IntegerField()
     location_id = models.IntegerField()

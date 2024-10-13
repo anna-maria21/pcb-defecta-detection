@@ -8,6 +8,14 @@ class MainConfig(AppConfig):
         from pcb_defects_detection.clear_data import handle
         handle()
 
+        self.color_map = {
+            0: (0, 255, 0),  # Green
+            1: (255, 0, 0),  # Blue
+            2: (0, 0, 255),  # Red
+            3: (255, 255, 0),  # Cyan
+            4: (255, 0, 255),  # Magenta
+            5: (0, 255, 255)  # Yellow
+        }
         import main.utils as utils
         yolo_model = utils.load_yolo_model()
         faster_r_cnn_model = utils.load_faster_r_cnn_model()

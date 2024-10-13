@@ -1,6 +1,5 @@
 import base64
 import hashlib
-import logging
 import os
 
 from django.contrib.auth import login, logout
@@ -47,7 +46,7 @@ class ImageUploadView(APIView):
 
             # Save the image to the project folder
             image_name = f"pcb_image_{PcbImage.objects.count() + 1}.{image_format}"
-            image_path = 'D:/магістерська/pcb_defects_detection/main/uploaded_images/'
+            image_path = 'main/uploaded_images/'
             output_path = os.path.join(image_path, image_name)
             image_hash = hashlib.sha256(image_bytes).hexdigest()
             pcb_image = PcbImage.objects.filter(image_hash=image_hash).first()
@@ -65,7 +64,7 @@ class ImageUploadView(APIView):
                 locations = Location.objects.filter(image_id=pcb_image.id)
             #     todo: query all data about the defect for the draw_bboxes method
             #     result = draw_bboxes(image, locations, classes)
-            return Response({"message": "Image uploaded successfully", "image_id": pcb_image.id, "result": result}, status=status.HTTP_201_CREATED)
+            return render(request, 'results.html', {"base64_image": 'dskjnkjdcnk'})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -74,10 +73,12 @@ def classify(image):
     classify(image)
 
 
-def process(request):
-    logging.debug(request)
-
-
-def logoutUser(request):
+def logout_user(request):
     logout(request)
     return redirect('login')
+
+
+class RatingSaveView(APIView):
+    def post(self, request, *args, **kwargs):
+        # @todo: save rating to db
+        return Response({'message': 'success'}, 200)

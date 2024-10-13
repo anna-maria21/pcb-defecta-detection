@@ -15,138 +15,123 @@
     <div class="header">
       <a href="#" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
       <div class="header-right">
-        {% if user.is_authenticated %}
-            <p class="welcome-text">Ласкаво просимо, {{user}}</p>
-            <a href="/logout" id="logout-button">Вийти</a>
-        {% else %}
-            <a id="login-button">Вхід</a>
-            <a id="sign-up-button">Реєстрація</a>
-        {% endif %}
+          <p class="welcome-text">Ласкаво просимо, {{user}}</p>
+          <a href="/logout" id="logout-button">Вийти</a>
       </div>
     </div>
 
     <div class="main-heading">
-      <h1><span id="HELLO_THIS_IS_MY_FIRST_HEADER-3">Сканування дефектів друкованих плат</span></h1>
-      <p class="small-padding">Щоб перевірити плату на наявність дефектів, оберіть картинку для сканування та моделі, які хочете використати.</p>
+      <h1><span id="HELLO_THIS_IS_MY_FIRST_HEADER-3">Результати сканування</span></h1>
     </div>
   </header>
 
   <div class="body-content">
       <form class="custom__form form-positions">
           {% csrf_token %}
-          <input type="file"
-                 id="image-file"
-                 accept="image/x-png, image/jpeg"
-                 style="display : none"
-          />
-          <label id="image-label" for="image-file">Виберіть картинку</label>
+          <p class="welcome-text">Локалізовані дефекти</p>
+          <img id="image" alt="Base64 Image" src="data:image/jpeg;base64,{{ base_url }}"/>
           <br />
-
-          <p class="error" id="image-error" style="display: none"></p>
+          <p class="welcome-text">Класи помилок:</p>
 
           <div class="flex-content">
-              <div class="block">
-                  <p class="small-padding beautiful">Оберіть модель локалізації</p>
-                  <select class="custom-select" id="localization">
-                      <option value="1">Yolo v8</option>
-                      <option value="2">Faster R-CNN</option>
-                  </select>
-              </div>
-              <div class="block">
-                  <p class="small-padding beautiful">Оберіть модель класифікації</p>
-                  <select class="custom-select" id="classification">
-                      <option value="3">VGG16</option>
-                      <option value="4">Huy znaye</option>
-                  </select>
-              </div>
+              <ul>
+                  <li class="tooltip-container">
+                      <div class="color-box" style="background-color: green;"></div>
+                      <span>Відсутній отвір</span>
+                      <img src="../static/images/missing_hole.jpg" alt="" class="tooltip-image-left">
+                  </li>
+                  <li class="tooltip-container">
+                      <div class="color-box" style="background-color: blue;"></div>
+                      <span>Мишачий укус</span>
+                      <img src="../static/images/mouse_bite.jpg" alt="" class="tooltip-image-left">
+                  </li>
+                  <li class="tooltip-container">
+                      <div class="color-box" style="background-color: red;"></div>
+                      <span>Відкритий контур</span>
+                      <img src="../static/images/open_circuit.jpg" alt="" class="tooltip-image-left">
+                  </li>
+              </ul>
+              <ul>
+                  <li class="tooltip-container">
+                      <div class="color-box" style="background-color: cyan;"></div>
+                      <span>Замикання</span>
+                      <img src="../static/images/short.jpg" alt="" class="tooltip-image-right">
+                  </li>
+                  <li class="tooltip-container">
+                      <div class="color-box" style="background-color: magenta;"></div>
+                      <span>Шпора</span>
+                      <img src="../static/images/spur.jpg" alt="" class="tooltip-image-right">
+                  </li>
+                  <li class="tooltip-container">
+                      <div class="color-box" style="background-color: yellow;"></div>
+                      <span>Небажана мідь</span>
+                      <img src="../static/images/spurious_copper.jpg" alt="" class="tooltip-image-right">
+                  </li>
+              </ul>
           </div>
-          <div class="form__controls small-padding">
-              {% if user.is_authenticated %}
-                <button type="button" id="process-button" class="btn btn-success btn-lg">Process Image</button>
-              {% else %}
-                  <p class="error">Для сканування увійдіть в акаунт</p>
-              {% endif %}
+          <p class="welcome-text">Моделі, що використовувались: {{model1}}, {{model2}}</p>
+          <p class="welcome-text">Оцініть правильність розпізнавання</p>
+          <div class="rating-star-slider" id="rating">
+              <div class="stars">
+                  <input type="radio" name="rating" value="1" id="star1">
+                  <label for="star1" class="star">★</label>
+                  <input type="radio" name="rating" value="2" id="star2">
+                  <label for="star2" class="star">★</label>
+                  <input type="radio" name="rating" value="3" id="star3">
+                  <label for="star3" class="star">★</label>
+                  <input type="radio" name="rating" value="4" id="star4">
+                  <label for="star4" class="star">★</label>
+                  <input type="radio" name="rating" value="5" id="star5">
+                  <label for="star5" class="star">★</label>
+              </div>
+              <button type="button" id="process-button" class="btn btn-success btn-lg">Зберегти оцінку</button>
           </div>
+          <p class="welcome-text" id="thanks" style="display: none">Дякуємо за відгук!</p>
       </form>
   </div>
 
-
   <script>
-     const input_file = document.getElementById('image-file');
-     const input_label = document.getElementById('image-label');
-     const process_button = document.getElementById('process-button');
-     const login_button = document.getElementById('login-button');
-     const signup_button = document.getElementById('sign-up-button');
-     const image_error = document.getElementById('image-error');
-     let my_image = '';
+      const tooltipContainer = document.querySelector('.tooltip-container');
+      const tooltipImage = document.querySelector('.tooltip-image');
+      const stars = document.querySelectorAll('.star');
+      const button = document.getElementById('process-button');
+      let ratingValue = 0;
 
-     const convert_to_base64 = file => new Promise((response) => {
-        const file_reader = new FileReader();
-        file_reader.readAsDataURL(file);
-        file_reader.onload = () => response(file_reader.result);
-     });
+      stars.forEach((star, index) => {
+          star.addEventListener('click', function () {
+              console.log(index)
+              ratingValue = 5 - index;
+          });
+      });
 
-     input_file.addEventListener('change', async function(){
-       const file = document.querySelector('#image-file').files;
-       my_image = await convert_to_base64(file[0]);
-       input_label.style.backgroundImage =`url(${my_image})`
-     });
+      tooltipContainer.addEventListener('mouseover', () => {
+          tooltipImage.style.display = 'block';
+      });
 
-     if (login_button) {
-         login_button.addEventListener('click', async function(){
-             fetch('/login', {
-                 method: 'GET',
-             })
-              .then(data => {
-                  window.location.href = data.url
-              })
-              .catch(error => console.error('Error:', error));
-         });
+      tooltipContainer.addEventListener('mouseout', () => {
+          tooltipImage.style.display = 'none';
+      });
 
-         signup_button.addEventListener('click', async function(){
-             fetch('/sign-up', {
-                 method: 'GET',
-             })
-              .then(data => {
-                  window.location.href = data.url
-              })
-              .catch(error => console.error('Error:', error));
-         });
-     }
+      button.addEventListener('click', () => {
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+          let data = JSON.stringify({'rating': ratingValue});
 
-     process_button.addEventListener('click', async function(){
-         if (my_image === '') {
-             image_error.style.display = "block";
-             image_error.textContent = "Фото - обов'язкове поле";
-         } else {
-             image_error.style.display = "none";
-             image_error.textContent = "";
-
-             const loc_model = document.getElementById('localization');
-             const class_model = document.getElementById('classification');
-             const data = {
-                 image: my_image,
-                 localization_model: loc_model.value,
-                 classification_model: class_model.value
-             }
-             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-             const formData = JSON.stringify(data);
-
-             fetch('/api/process-image/', {
-                 method: 'POST',
-                 body: formData,
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'X-CSRFToken': csrfToken,
-                 },
-             })
-             .then(data => {
-                 console.log(data);
-             })
-             .catch(error => console.error('Error:', error));
-         }
-     });
+          fetch('/save-rating/', {
+              method: 'POST',
+              body: data,
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': csrfToken,
+              },
+          })
+          .then(data => {
+              const thanks = document.getElementById('thanks');
+              const rating = document.getElementById('rating');
+              rating.style.display = 'none';
+              thanks.style.display = 'block';
+          })
+          .catch(error => console.error('Error:', error));
+      });
   </script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

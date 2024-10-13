@@ -185,3 +185,98 @@ input[type=”text” i]{
   color: #000;
   cursor: pointer;
 }
+
+ul {
+  list-style-type: none;
+  padding: 0 80px 0 80px;
+}
+
+li {
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.color-box {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.tooltip-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.tooltip-image-left {
+    display: none; /* Сховати зображення за замовчуванням */
+    position: absolute;
+    top: -80%;
+    left: -40%;
+    transform: translateX(-50%);
+    width: 80px; /* Встановіть ширину зображення */
+    border-radius: 8px; /* Заокруглені кути */
+    z-index: 1; /* Відображення поверх інших елементів */
+}
+
+.tooltip-image-right {
+    display: none; /* Сховати зображення за замовчуванням */
+    position: absolute;
+    top: -80%;
+    left: 150%;
+    transform: translateX(-50%);
+    width: 80px; /* Встановіть ширину зображення */
+    border-radius: 8px; /* Заокруглені кути */
+    z-index: 1; /* Відображення поверх інших елементів */
+}
+
+.tooltip-container:hover .tooltip-image-left {
+    display: block; /* Показати зображення при наведенні */
+}
+
+.tooltip-container:hover .tooltip-image-right {
+    display: block; /* Показати зображення при наведенні */
+}
+
+.rating-star-slider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stars {
+    display: flex; /* Змінюємо порядок, щоб зірки відображалися з правого боку */
+    direction: rtl;
+}
+
+input[type="radio"] {
+    display: none; /* Ховаємо стандартні радіо-кнопки */
+}
+
+.star {
+    font-size: 40px; /* Розмір зірки */
+    color: gray; /* Колір незаповненої зірки */
+    cursor: pointer; /* Курсор при наведенні */
+}
+
+input[type="radio"]:checked ~ .star {
+    color: gold; /* Колір заповненої зірки */
+}
+
+/* Змінюємо колір зірок при наведенні */
+.star:hover,
+.star:hover ~ .star {
+    color: gold; /* Змінюємо колір на золото при наведенні */
+}
+
+.slider {
+    width: 300px; /* Ширина слайдера */
+    margin-top: 10px; /* Відстань між зірками і слайдером */
+}
+
+.rating-value {
+    margin-top: 10px; /* Відстань між слайдером і текстом */
+    font-size: 24px; /* Розмір шрифту */
+}

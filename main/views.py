@@ -9,6 +9,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.apps import apps
 
 from main.forms import RegistrationForm
 from main.localize import localize
@@ -83,20 +84,22 @@ class ImageUploadView(APIView):
                 ).values_list('type_id', flat=True)
                 classes = [[num] for num in classes]
                 image_name = f"pcb_image_{pcb_image.id}.{image_format}"
-                image_path = 'D:/магістерська/pcb_defects_detection/main/uploaded_images/'
+                image_path = 'main/uploaded_images/'
                 output_path = os.path.join(image_path, image_name)
                 img = cv2.imread(output_path)
                 image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 message="Already processed image, results retrieved from the database"
                 result = draw_bboxes(image_rgb, locations, classes)
-            return render(request, 'results.html', {
-                             "message": message,
-                             "image_id": pcb_image.id,
-                             "result": result,
-                             "classification_model": classification_model,
-                             "localization_model": localization_model
-                             }
-            )
+
+            models_map = apps.get_app_config('main').models_map
+            request.session['message'] = message
+            request.session['image_id'] = pcb_image.id
+            request.session['result'] = result
+            request.session['classification_model_id'] = classification_model
+            request.session['classification_model'] = models_map[classification_model]
+            request.session['localization_model'] = models_map[localization_model]
+            request.session['localization_model_id'] = localization_model
+            return Response({'url': '/results/'})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -108,6 +111,10 @@ def classify(image):
 def logout_user(request):
     logout(request)
     return redirect('login')
+
+
+def results(request):
+    return render(request, 'results.html')
 
 
 class RatingSaveView(APIView):

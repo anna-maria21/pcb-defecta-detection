@@ -31,7 +31,10 @@
     </div>
   </header>
 
-  <div class="body-content">
+  <div id="overlay">
+      <div class="spinner"></div>
+  </div>
+  <div class="body-content" id="body_content">
       <form class="custom__form form-positions">
           {% csrf_token %}
           <input type="file"
@@ -43,7 +46,6 @@
           <br />
 
           <p class="error" id="image-error" style="display: none"></p>
-
           <div class="flex-content">
               <div class="block">
                   <p class="small-padding beautiful">Оберіть модель локалізації</p>
@@ -55,8 +57,8 @@
               <div class="block">
                   <p class="small-padding beautiful">Оберіть модель класифікації</p>
                   <select class="custom-select" id="classification">
-                      <option value="3">VGG16</option>
-                      <option value="4">Huy znaye</option>
+                      <option value="3">VGG</option>
+                      <option value="4">ResNet</option>
                   </select>
               </div>
           </div>
@@ -78,6 +80,7 @@
      const login_button = document.getElementById('login-button');
      const signup_button = document.getElementById('sign-up-button');
      const image_error = document.getElementById('image-error');
+     const body = document.getElementById('body_content');
      let my_image = '';
 
      const convert_to_base64 = file => new Promise((response) => {
@@ -133,6 +136,10 @@
              const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
              const formData = JSON.stringify(data);
+             body.style.zIndex = '9999';
+             body.style.visibility = 'hidden';
+             body.style.background = 'rgba(0, 0, 0, 0.5)';
+             document.getElementById('overlay').style.visibility = 'visible';
 
              fetch('/api/process-image/', {
                  method: 'POST',
@@ -141,10 +148,12 @@
                      'Content-Type': 'application/json',
                      'X-CSRFToken': csrfToken,
                  },
-             })
-             .then(data => {
-                 console.log(data);
-             })
+             }).then(response => response.json())  // якщо повертається JSON
+            .then(data => {
+                if (data.url) {
+                    window.location.href = data.url;  // Перенаправляємо користувача
+                }
+            })
              .catch(error => console.error('Error:', error));
          }
      });

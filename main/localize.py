@@ -19,5 +19,5 @@ def localize(image_path, localization_model_str, classification_model_str):
         boxes = utils.detect_with_yolo(localization_model, utils.preprocess_for_yolo(image_rgb))
     else:
         boxes = utils.detect_with_fasterrcnn(localization_model, utils.preprocess_for_fasterrcnn(image_rgb))
-    cropped_image = utils.crop_image(image_path, boxes)
+    cropped_image = utils.crop_image(image_path, boxes, classification_model)
     return cropped_image

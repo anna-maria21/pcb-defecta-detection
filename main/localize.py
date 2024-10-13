@@ -7,7 +7,7 @@ from main.classify import classify
 import main.utils as utils
 
 
-def localize(image_path, localization_model_str, classification_model_str):
+def localize(image_path, localization_model_str, classification_model_str, pcb_image):
     models_dict = apps.get_app_config('main').models_dict
     localization_model = models_dict[localization_model_str]
     classification_model = models_dict[classification_model_str]
@@ -19,5 +19,5 @@ def localize(image_path, localization_model_str, classification_model_str):
         boxes = utils.detect_with_yolo(localization_model, utils.preprocess_for_yolo(image_rgb))
     else:
         boxes = utils.detect_with_fasterrcnn(localization_model, utils.preprocess_for_fasterrcnn(image_rgb))
-    cropped_image = utils.crop_image(image_path, boxes, classification_model)
+    cropped_image = utils.crop_image(image_path, boxes, pcb_image, classification_model)
     return cropped_image

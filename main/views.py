@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from main.forms import RegistrationForm
 from main.localize import localize
-from main.models import PcbImage
+from main.models import PcbImage, Location
 
 
 def home(request):
@@ -49,20 +49,23 @@ class ImageUploadView(APIView):
             image_name = f"pcb_image_{PcbImage.objects.count() + 1}.{image_format}"
             image_path = 'D:/магістерська/pcb_defects_detection/main/uploaded_images/'
             output_path = os.path.join(image_path, image_name)
+            image_hash = hashlib.sha256(image_bytes).hexdigest()
+            pcb_image = PcbImage.objects.filter(image_hash=image_hash).first()
 
-            # Write the decoded bytes to the file
-            with open(output_path, "wb") as image_file:
-                image_file.write(image_bytes)
+            if pcb_image is None:
+                with open(output_path, "wb") as image_file:
+                    image_file.write(image_bytes)
 
-            # Save data to the database
-            pcb_image = PcbImage.objects.create(
-                photo_location=image_path,
-                image_hash=hashlib.sha256(image_bytes).hexdigest()
-            )
-
-            localize(image_path + image_name, localization_model, classification_model)
-
-            return Response({"message": "Image uploaded successfully", "image_id": pcb_image.id}, status=status.HTTP_201_CREATED)
+                pcb_image = PcbImage.objects.create(
+                    photo_location=image_path,
+                    image_hash=image_hash
+                )
+                result = localize(image_path + image_name, localization_model, classification_model, pcb_image)
+            else:
+                locations = Location.objects.filter(image_id=pcb_image.id)
+            #     todo: query all data about the defect for the draw_bboxes method
+            #     result = draw_bboxes(image, locations, classes)
+            return Response({"message": "Image uploaded successfully", "image_id": pcb_image.id, "result": result}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

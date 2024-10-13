@@ -13,7 +13,7 @@
 <body>
   <header>
     <div class="header">
-      <a href="#" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
+      <a href="/" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
       <div class="header-right">
           <p class="welcome-text">Ласкаво просимо, {{user}}</p>
           <a href="/logout" id="logout-button">Вийти</a>
@@ -28,6 +28,7 @@
   <div class="body-content">
       <form class="custom__form form-positions">
           {% csrf_token %}
+          <p class="welcome-text">Моделі, що використовувались: {{ request.session.localization_model }}, {{ request.session.classification_model }}</p>
           <p class="welcome-text">Локалізовані дефекти</p>
           <img id="image" alt="Base64 Image" src="data:image/jpeg;base64,{{ request.session.result }}"/>
           <br />
@@ -69,7 +70,6 @@
                   </li>
               </ul>
           </div>
-          <p class="welcome-text">Моделі, що використовувались: {{ request.session.localization_model }}, {{ request.session.classification_model }}</p>
           <p class="welcome-text">Оцініть правильність розпізнавання</p>
           <div class="rating-star-slider" id="rating">
               <div class="stars">

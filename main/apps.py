@@ -8,6 +8,12 @@ class MainConfig(AppConfig):
         from pcb_defects_detection.clear_data import handle
         handle()
 
+        self.models_map = {
+            1: 'Yolo v8',
+            2: 'Faster R-CNN',
+            3: 'VGG',
+            4: 'ResNet'
+        }
         self.color_map = {
             0: (0, 255, 0),  # Green
             1: (255, 0, 0),  # Blue

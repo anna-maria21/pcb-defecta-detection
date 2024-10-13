@@ -2,7 +2,7 @@ import base64
 import hashlib
 import os
 import cv2
-
+from django.db.models import Avg
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -12,12 +12,13 @@ from rest_framework.views import APIView
 
 from main.forms import RegistrationForm
 from main.localize import localize
-from main.models import PcbImage, Location, Defect
+from main.models import PcbImage, Location, Defect, ModelsRating
 from main.utils import draw_bboxes
 
 
 def home(request):
-    return render(request, 'index.html')
+    marks = ModelsRating.objects.values('localization_model_id', 'classification_model_id').annotate(mark=Avg('rating'))
+    return render(request, 'index.html', {"marks": marks})
 
 
 def sign_up(request):
@@ -80,7 +81,7 @@ class ImageUploadView(APIView):
                     classification_model_id=int(classification_model),
                     localization_model_id=int(localization_model)
                 ).values_list('type_id', flat=True)
-
+                classes = [[num] for num in classes]
                 image_name = f"pcb_image_{pcb_image.id}.{image_format}"
                 image_path = 'D:/магістерська/pcb_defects_detection/main/uploaded_images/'
                 output_path = os.path.join(image_path, image_name)
@@ -111,5 +112,11 @@ def logout_user(request):
 
 class RatingSaveView(APIView):
     def post(self, request, *args, **kwargs):
-        # @todo: save rating to db
+        ModelsRating.objects.create(
+            classification_model_id=request.data.get('classification_model'),
+            localization_model_id = request.data.get('localization_model'),
+            rating = request.data.get('image')
+        )
         return Response({'message': 'success'}, 200)
+
+

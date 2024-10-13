@@ -19,7 +19,14 @@ from main.utils import draw_bboxes
 
 def home(request):
     marks = ModelsRating.objects.values('localization_model_id', 'classification_model_id').annotate(mark=Avg('rating'))
-    return render(request, 'index.html', {"marks": marks})
+    models = apps.get_app_config('main').models_map
+    marks_list = list()
+    for mark in marks:
+        mark['classification_model_id'] = models[mark['classification_model_id']]
+        mark['localization_model_id'] = models[mark['localization_model_id']]
+        marks_list.append(mark)
+
+    return render(request, 'index.html', {"marks": marks_list})
 
 
 def sign_up(request):
@@ -96,8 +103,8 @@ class ImageUploadView(APIView):
             request.session['image_id'] = pcb_image.id
             request.session['result'] = result
             request.session['classification_model_id'] = classification_model
-            request.session['classification_model'] = models_map[classification_model]
-            request.session['localization_model'] = models_map[localization_model]
+            request.session['classification_model'] = models_map[int(classification_model)]
+            request.session['localization_model'] = models_map[int(localization_model)]
             request.session['localization_model_id'] = localization_model
             return Response({'url': '/results/'})
         except Exception as e:
@@ -120,9 +127,9 @@ def results(request):
 class RatingSaveView(APIView):
     def post(self, request, *args, **kwargs):
         ModelsRating.objects.create(
-            classification_model_id=request.data.get('classification_model'),
-            localization_model_id = request.data.get('localization_model'),
-            rating = request.data.get('image')
+            classification_model_id=request.data.get('classification_model_id'),
+            localization_model_id = request.data.get('localization_model_id'),
+            rating = request.data.get('rating')
         )
         return Response({'message': 'success'}, 200)
 

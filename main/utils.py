@@ -9,6 +9,9 @@ import torch
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import torchvision.transforms as T
+from tensorflow.keras.models import load_model
+
+from main.classify import classify
 
 from main.models import Location
 
@@ -24,7 +27,7 @@ def preprocess_for_fasterrcnn(image):
     return transform(image).unsqueeze(0)
 
 
-def crop_image(image, boxes, pcb_image):
+def crop_image(image, boxes, pcb_image, classification_model):
     img = cv2.imread(image)
     image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     box_num = 1
@@ -40,11 +43,11 @@ def crop_image(image, boxes, pcb_image):
             y_max=y_max,
             image_id=pcb_image.id
         )
-        cropped_img_path = 'D:/магістерська/pcb_defects_detection/main/cropped_images/' + str(box_num) + '_' + image.split('/')[-1]
+        cropped_img_path = 'main/cropped_images/' + str(box_num) + '_' + image.split('/')[-1]
 
         cv2.imwrite(cropped_img_path, cropped_img)
         box_num += 1
-        # classes.append(classify(cropped_img_path))
+        # classes.append(classify(cropped_img_path, classification_model))
 
 
     return draw_bboxes(image_rgb, boxes, classes)
@@ -78,7 +81,7 @@ def detect_with_fasterrcnn(model, image):
 
 
 def load_yolo_model():
-    return YOLO('D:/магістерська/pcb_defects_detection/main/ai-models/trained_yolo_model.pt')
+    return YOLO('main/ai-models/trained_yolo_model.pt')
 
 
 def load_faster_r_cnn_model():
@@ -87,7 +90,7 @@ def load_faster_r_cnn_model():
     in_features = faster_r_cnn_model.roi_heads.box_predictor.cls_score.in_features
     faster_r_cnn_model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes=6)
     faster_r_cnn_model.load_state_dict(
-        torch.load('D:/магістерська/pcb_defects_detection/main/ai-models/trained_faster_r_cnn_model.pt',
+        torch.load('main/ai-models/trained_faster_r_cnn_model.pt',
                    map_location=device))
     faster_r_cnn_model.eval()
     faster_r_cnn_model.to(device)
@@ -105,3 +108,10 @@ def resize_image(image, max_size=1024):
         image = cv2.resize(image, new_size)
 
     return image
+
+def load_vgg_model():
+    return load_model('main/ai-models/vgg16_best_model.keras')
+
+def load_resnet_model():
+    return load_model('main/ai-models/resnet50_best_model.keras')
+

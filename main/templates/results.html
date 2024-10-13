@@ -15,9 +15,13 @@
     <div class="header">
       <a href="#" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
       <div class="header-right">
-
-        <a id="logout-button">Вийти</a>
-
+        {% if user.is_authenticated %}
+            <p class="welcome-text">Ласкаво просимо, {{user}}</p>
+            <a href="/logout" id="logout-button">Вийти</a>
+        {% else %}
+            <a id="login-button">Вхід</a>
+            <a id="sign-up-button">Реєстрація</a>
+        {% endif %}
       </div>
     </div>
 
@@ -45,19 +49,23 @@
                   <p class="small-padding beautiful">Оберіть модель локалізації</p>
                   <select class="custom-select" id="localization">
                       <option value="1">Yolo v8</option>
-                      <option value="2">Faster CNN</option>
+                      <option value="2">Faster R-CNN</option>
                   </select>
               </div>
               <div class="block">
                   <p class="small-padding beautiful">Оберіть модель класифікації</p>
                   <select class="custom-select" id="classification">
-                      <option value="1">VGG16</option>
-                      <option value="2">Huy znaye</option>
+                      <option value="3">VGG16</option>
+                      <option value="4">Huy znaye</option>
                   </select>
               </div>
           </div>
           <div class="form__controls small-padding">
-              <button type="button" id="process-button" class="btn btn-success btn-lg">Process Image</button>
+              {% if user.is_authenticated %}
+                <button type="button" id="process-button" class="btn btn-success btn-lg">Process Image</button>
+              {% else %}
+                  <p class="error">Для сканування увійдіть в акаунт</p>
+              {% endif %}
           </div>
       </form>
   </div>
@@ -84,25 +92,27 @@
        input_label.style.backgroundImage =`url(${my_image})`
      });
 
-     login_button.addEventListener('click', async function(){
-         fetch('/login', {
-             method: 'GET',
-         })
-          .then(data => {
-              window.location.href = data.url
-          })
-          .catch(error => console.error('Error:', error));
-     });
+     if (login_button) {
+         login_button.addEventListener('click', async function(){
+             fetch('/login', {
+                 method: 'GET',
+             })
+              .then(data => {
+                  window.location.href = data.url
+              })
+              .catch(error => console.error('Error:', error));
+         });
 
-     signup_button.addEventListener('click', async function(){
-         fetch('/sign-up', {
-             method: 'GET',
-         })
-          .then(data => {
-              window.location.href = data.url
-          })
-          .catch(error => console.error('Error:', error));
-     });
+         signup_button.addEventListener('click', async function(){
+             fetch('/sign-up', {
+                 method: 'GET',
+             })
+              .then(data => {
+                  window.location.href = data.url
+              })
+              .catch(error => console.error('Error:', error));
+         });
+     }
 
      process_button.addEventListener('click', async function(){
          if (my_image === '') {

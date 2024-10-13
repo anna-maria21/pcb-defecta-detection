@@ -65,7 +65,13 @@ class ImageUploadView(APIView):
                 locations = Location.objects.filter(image_id=pcb_image.id)
             #     todo: query all data about the defect for the draw_bboxes method
             #     result = draw_bboxes(image, locations, classes)
-            return Response({"message": "Image uploaded successfully", "image_id": pcb_image.id, "result": result}, status=status.HTTP_201_CREATED)
+            return Response({
+                             "message": "Image uploaded successfully",
+                             "image_id": pcb_image.id,
+                             "result": result,
+                             "classification_model": classification_model,
+                             "localization_model": localization_model
+                             }, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

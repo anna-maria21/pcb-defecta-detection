@@ -1,20 +1,21 @@
-import torch
-import cv2
 import base64
-import numpy as np
+import cv2
 import matplotlib.pyplot as plt
-from torchvision import transforms
-from ultralytics import YOLO
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
 import torch
 import torchvision
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import torchvision.transforms as T
-from tensorflow.keras.models import load_model
 from django.apps import apps
+from tensorflow.keras.models import load_model
+from torchvision import transforms
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from ultralytics import YOLO
 
 from main.classify import classify
-from main.models import Location
 from main.models import Defect
+from main.models import Location
 
 
 def preprocess_for_yolo(image):
@@ -33,7 +34,7 @@ def crop_image(image, boxes, pcb_image, localization_model, classification_model
     image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     box_num = 1
     classes = list()
-    boxes = non_maximum_suppression(boxes, 0.3)
+    boxes = non_maximum_suppression(boxes, 0.2)
     for box in boxes:
         x_min, y_min, x_max, y_max = map(int, box)
         cropped_img = img[y_min:y_max, x_min:x_max]
@@ -53,7 +54,7 @@ def crop_image(image, boxes, pcb_image, localization_model, classification_model
         classes.append(detected_class)
 
         models_dict = apps.get_app_config('main').models_dict
-        defect = Defect.objects.create(
+        Defect.objects.create(
             image_id=pcb_image.id,
             user_id=userid,
             type_id=detected_class,
@@ -65,16 +66,14 @@ def crop_image(image, boxes, pcb_image, localization_model, classification_model
     return draw_bboxes(image_rgb, boxes, classes)
 
 
-
 def draw_bboxes(image, bboxes, classes):
-
     color_map = apps.get_app_config('main').color_map
     for bbox, detected_class in zip(bboxes, classes):
         x_min, y_min, x_max, y_max = map(int, bbox)
-        cv2.rectangle(image, (x_min-10, y_min-10), (x_max+10, y_max+10), color_map[detected_class[0]], 8)
+        cv2.rectangle(image, (x_min - 5, y_min - 5), (x_max + 5, y_max + 5), color_map[detected_class[0]], 8)
 
     resized = resize_image(image)
-    _, buffer = cv2.imencode('.png', resized)
+    _, buffer = cv2.imencode('.jpg', resized)
 
     image_base64 = base64.b64encode(buffer).decode('utf-8')
     return image_base64
@@ -122,14 +121,17 @@ def resize_image(image, max_size=1024):
 
     return image
 
+
 def load_vgg_model():
     return load_model('main/ai-models/vgg16_best_model.keras')
+
 
 def load_resnet_model():
     return load_model('main/ai-models/resnet50_best_model.keras')
 
 
 import numpy as np
+
 
 def calculate_iou(boxA, boxB):
     x_min_A, y_min_A, x_max_A, y_max_A = boxA

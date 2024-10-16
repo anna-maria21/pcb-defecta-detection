@@ -5,8 +5,8 @@ class MainConfig(AppConfig):
     name = 'main'
 
     def ready(self):
-        from pcb_defects_detection.clear_data import handle
-        handle()
+        # from pcb_defects_detection.clear_data import handle
+        # handle()
 
         self.models_map = {
             1: 'Yolo v8',

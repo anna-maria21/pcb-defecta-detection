@@ -64,12 +64,13 @@ class ImageUploadView(APIView):
             pass
 
         try:
-            if pcb_image is None or defects is None:
+            if pcb_image is None or len(defects) == 0:
                 image_path = 'main/uploaded_images/'
-                pcb_image = PcbImage.objects.create(
-                    photo_location=image_path,
-                    image_hash=image_hash
-                )
+                if pcb_image is None:
+                    pcb_image = PcbImage.objects.create(
+                        photo_location=image_path,
+                        image_hash=image_hash
+                    )
                 image_name = f"pcb_image_{pcb_image.id}.{image_format}"
                 output_path = os.path.join(image_path, image_name)
                 with open(output_path, "wb") as image_file:
@@ -88,6 +89,7 @@ class ImageUploadView(APIView):
                     localization_model_id=int(localization_model)
                 ).values_list('type_id', flat=True)
                 classes = [[num] for num in classes]
+
                 image_name = f"pcb_image_{pcb_image.id}.{image_format}"
                 image_path = 'main/uploaded_images/'
                 output_path = os.path.join(image_path, image_name)

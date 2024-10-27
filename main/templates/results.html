@@ -70,6 +70,11 @@
                   </li>
               </ul>
           </div>
+          <div class="form__controls small-padding">
+<!--              <a href="{% url 'download_report' %}" class="btn btn-primary">Download PDF Report</a>-->
+                <button type="button" id="report-button" class="btn btn-success btn-lg">Download PDF Report</button>
+          </div>
+
           <p class="welcome-text">Оцініть правильність розпізнавання</p>
           <div class="rating-star-slider" id="rating">
               <div class="stars">
@@ -94,7 +99,8 @@
       const tooltipContainer = document.querySelector('.tooltip-container');
       const tooltipImage = document.querySelector('.tooltip-image');
       const stars = document.querySelectorAll('.star');
-      const button = document.getElementById('process-button');
+      const process_button = document.getElementById('process-button');
+      const report_button = document.getElementById('report-button');
       let ratingValue = 0;
 
       stars.forEach((star, index) => {
@@ -112,7 +118,7 @@
           tooltipImage.style.display = 'none';
       });
 
-      button.addEventListener('click', () => {
+      process_button.addEventListener('click', () => {
           const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
           let data = JSON.stringify({
               'rating': ratingValue,
@@ -136,6 +142,37 @@
           })
           .catch(error => console.error('Error:', error));
       });
+
+     report_button.addEventListener('click', () => {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('/download-report/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.blob();  // Convert the response to a Blob
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);  // Create a URL for the Blob
+            const a = document.createElement('a');  // Create a temporary anchor element
+            a.href = url;  // Set the Blob URL as the href
+            a.download = 'pcb_defects_report.pdf';  // Set the default filename
+            document.body.appendChild(a);  // Append to the document
+            a.click();  // Trigger the download
+            a.remove();  // Remove the temporary element
+            window.URL.revokeObjectURL(url);  // Clean up the URL
+        })
+        .catch(error => {
+            console.error('There was an error downloading the PDF:', error);
+        });
+    });
   </script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>

@@ -14,7 +14,7 @@ from django.apps import apps
 from main.forms import RegistrationForm
 from main.localize import localize
 from main.models import PcbImage, Location, Defect, ModelsRating
-from main.utils import draw_bboxes
+from main.utils import draw_bboxes, get_pdf
 
 def home(request):
     marks = ModelsRating.objects.values('localization_model_id', 'classification_model_id').annotate(mark=Avg('rating'))
@@ -79,7 +79,7 @@ class ImageUploadView(APIView):
                 message="New image received, processed"
                 user_id = request.session.get('current_user_id')
 
-                result = localize(image_path + image_name, localization_model, classification_model, pcb_image, user_id)
+                result, defects = localize(image_path + image_name, localization_model, classification_model, pcb_image, user_id)
             else:
                 locations = Location.objects.filter(image_id=pcb_image.id).values_list('x_min', 'y_min', 'x_max', 'y_max')
 
@@ -96,12 +96,13 @@ class ImageUploadView(APIView):
                 img = cv2.imread(output_path)
                 image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 message="Already processed image, results retrieved from the database"
-                result = draw_bboxes(image_rgb, locations, classes)
+                result, defects = draw_bboxes(image_rgb, locations, classes)
 
             models_map = apps.get_app_config('main').models_map
             request.session['message'] = message
             request.session['image_id'] = pcb_image.id
             request.session['result'] = result
+            request.session['defects'] = defects
             request.session['classification_model_id'] = classification_model
             request.session['classification_model'] = models_map[int(classification_model)]
             request.session['localization_model'] = models_map[int(localization_model)]
@@ -118,6 +119,10 @@ def classify(image):
 def logout_user(request):
     logout(request)
     return redirect('login')
+
+
+def generate_pdf(request):
+    return get_pdf(request)
 
 
 def results(request):

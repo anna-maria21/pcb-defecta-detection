@@ -22,6 +22,23 @@ class MainConfig(AppConfig):
             4: (255, 0, 255),  # Magenta
             5: (0, 255, 255)  # Yellow
         }
+        self.report_colors = {
+            0: 'Зелений',
+            1: 'Синій',
+            2: 'Червоний',
+            3: 'Блакитний',
+            4: 'Рожевий',
+            5: 'Жовтий'
+        }
+        self.defect_types = {
+            0: 'Відсутній отвір (Missing hole)',
+            1: 'Мишачий укус (Mouse bite)',
+            2: 'Відкритий контур (Open circuit)',
+            3: 'Замикання (Short)',
+            4: 'Шпора (Spur)',
+            5: 'Небажана мідь (Spurious copper)'
+        }
+
         import main.utils as utils
         yolo_model = utils.load_yolo_model()
         faster_r_cnn_model = utils.load_faster_r_cnn_model()

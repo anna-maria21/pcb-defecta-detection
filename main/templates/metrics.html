@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Метрики</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"> <!-- Ваш власний CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <header>
+    <div class="header">
+      <a href="/" class="logo"><img src="{% static 'images/pcb_icon.png' %}" alt="Логотип" class="icon-size img-fluid"></a>
+      <div class="header-right">
+          <p class="welcome-text">Ласкаво просимо, {{user}}</p>
+          <a href="/" id="home-button">Головна</a>
+          <a href="/logout" id="logout-button">Вийти</a>
+      </div>
+    </div>
+
+    <div class="main-heading">
+      <h1><span>Аналіз роботи моделей</span></h1>
+    </div>
+  </header>
+
+  <div style="color: white;">
+      <div class="body-content padding-charts">
+          <canvas id="localizationBarChart" style="width: 40%; height: 500px"></canvas>
+          <canvas id="classificationBarChart" style="width: 40%; height: 500px"></canvas>
+      </div>
+      <div class="body-content padding-charts">
+          <canvas id="localizationDonatChart" style="width: 40%; height: 500px"></canvas>
+          <canvas id="classificationDonatChart" style="width: 40%; height: 500px"></canvas>
+      </div>
+      <div class="body-content padding-charts">
+          <canvas id="marksChart" style="width: 40%; height: 500px"></canvas>
+      </div>
+  </div>
+
+  <script type="text/javascript">
+    var avgClass = JSON.parse('{{ avgClassification|escapejs }}');
+    var avgLoc = JSON.parse('{{ avgLocalization|escapejs }}');
+    var countClass = JSON.parse('{{ countClassification|escapejs }}');
+    var countLoc = JSON.parse('{{ countLocalizations|escapejs }}');
+    var marks = JSON.parse('{{ marks|escapejs }}')
+    var marksModels = JSON.parse('{{ marks_models|escapejs }}')
+    console.log(marks, marksModels)
+  </script>
+  <script src="../static/js/classificationTimeBar.js"></script>
+  <script src="../static/js/localizationTimeBar.js"></script>
+  <script src="../static/js/classificationCountDonat.js"></script>
+  <script src="../static/js/localizationCountDonat.js"></script>
+  <script src="../static/js/marks.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

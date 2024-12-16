@@ -17,6 +17,7 @@
       <div class="header-right">
         {% if user.is_authenticated %}
             <p class="welcome-text">Ласкаво просимо, {{user}}</p>
+            <a href="/metrics" id="metrics-button">Графіки</a>
             <a href="/logout" id="logout-button">Вийти</a>
         {% else %}
             <a id="login-button">Вхід</a>

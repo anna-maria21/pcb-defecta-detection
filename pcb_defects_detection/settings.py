@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'pcb_defect_localization',
         'USER': 'root',
-        'PASSWORD': 'Qwerty1234',
+        'PASSWORD': 'password',
         'HOST':'localhost',
         'PORT':'3306',
     }

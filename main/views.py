@@ -1,8 +1,11 @@
 import base64
 import hashlib
+import json
 import os
+
 import cv2
-from django.db.models import Avg
+from django.core.serializers import serialize
+from django.db.models import Avg, Count
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -13,7 +16,7 @@ from django.apps import apps
 
 from main.forms import RegistrationForm
 from main.localize import localize
-from main.models import PcbImage, Location, Defect, ModelsRating
+from main.models import PcbImage, Location, Defect, ModelsRating, ModelPerformance
 from main.utils import draw_bboxes, get_pdf
 
 def home(request):
@@ -127,6 +130,37 @@ def generate_pdf(request):
 
 def results(request):
     return render(request, 'results.html')
+
+
+def metrics(request):
+    avgClassification = ModelPerformance.objects.values('classification_model_id').annotate(total_time=Avg('classification_time'))
+    avgClassification = json.dumps(list(avgClassification))
+    avgLocalization = ModelPerformance.objects.values('localization_model_id').annotate(total_time=Avg('localization_time'))
+    avgLocalization = json.dumps(list(avgLocalization))
+
+    countLocalizations = ModelPerformance.objects.values('localization_model_id').annotate(count_loc=Count('id'))
+    countLocalizations = json.dumps(list(countLocalizations))
+    countClassification = ModelPerformance.objects.values('classification_model_id').annotate(count_class=Count('id'))
+    countClassification = json.dumps(list(countClassification))
+
+    marks = ModelsRating.objects.values('localization_model_id', 'classification_model_id').annotate(mark=Avg('rating'))
+    models = apps.get_app_config('main').models_map
+    marks_list = list()
+    models_list = list()
+    for mark in marks:
+        marks_list.append(float(mark['mark']))
+        models_list.append(models[mark['classification_model_id']] + '+' + models[mark['localization_model_id']])
+    marks = json.dumps(list(marks_list))
+    marks_models = json.dumps(list(models_list))
+
+    return render(request, 'metrics.html', {
+        'avgClassification': avgClassification,
+        'avgLocalization': avgLocalization,
+        'countLocalizations': countLocalizations,
+        'countClassification': countClassification,
+        'marks': marks,
+        'marks_models': marks_models
+    })
 
 
 class RatingSaveView(APIView):

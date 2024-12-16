@@ -48,3 +48,13 @@ class ClearConfig(models.Model):
 
     class Meta:
         db_table = 'clear_config'
+
+
+class ModelPerformance(models.Model):
+    localization_model_id = models.IntegerField()
+    classification_model_id = models.IntegerField()
+    localization_time = models.IntegerField()
+    classification_time = models.IntegerField()
+
+    class Meta:
+        db_table = 'model_performance'

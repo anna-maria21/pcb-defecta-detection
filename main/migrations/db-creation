@@ -1,0 +1,95 @@
+CREATE DATABASE `pcb_defect_localization`;
+
+CREATE TABLE `ai_model` (
+  `id` int(11) NOT NULL,
+  `name` varchar(60) NOT NULL,
+  `type` varchar(45) DEFAULT NULL,
+  `rating` decimal(3,2) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `auth_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `last_login` datetime(6) DEFAULT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `username` varchar(150) NOT NULL,
+  `first_name` varchar(150) NOT NULL,
+  `last_name` varchar(150) NOT NULL,
+  `email` varchar(254) NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `date_joined` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+);
+
+CREATE TABLE `clear_config` (
+  `last_removing_date_time` datetime DEFAULT NULL,
+  `files_deleted` int(11) DEFAULT NULL,
+  `rows_deleted` int(11) DEFAULT NULL,
+  KEY `idx_clearconfig_last_removing` (`last_removing_date_time` DESC)
+);
+
+CREATE TABLE `pcb_image` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_hash` varchar(255) NOT NULL,
+  `photo_location` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `type` (
+  `id` int(11) NOT NULL,
+  `title` varchar(45) NOT NULL,
+  `description` varchar(60) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `location` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `x_min` int(11) NOT NULL,
+  `y_min` int(11) NOT NULL,
+  `x_max` int(11) NOT NULL,
+  `y_max` int(11) NOT NULL,
+  `image_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_location_image_idx` (`image_id`),
+  CONSTRAINT `fk_location_image` FOREIGN KEY (`image_id`) REFERENCES `pcb_image` (`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `model_performance` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `localization_model_id` int(11) NOT NULL,
+  `classification_model_id` int(11) NOT NULL,
+  `localization_time` int(11) NOT NULL,
+  `classification_time` int(11) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `localization_model_id` (`localization_model_id`),
+  KEY `classification_model_id` (`classification_model_id`),
+  CONSTRAINT `model_performance_ibfk_1` FOREIGN KEY (`localization_model_id`) REFERENCES `ai_model` (`id`),
+  CONSTRAINT `model_performance_ibfk_2` FOREIGN KEY (`classification_model_id`) REFERENCES `ai_model` (`id`)
+);
+
+CREATE TABLE `defect` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `type_id` int(11) NOT NULL,
+  `localization_model_id` int(11) NOT NULL,
+  `location_id` int(11) NOT NULL,
+  `classification_model_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk1_idx` (`localization_model_id`),
+  KEY `fk2_idx` (`location_id`),
+  KEY `fk3_idx` (`image_id`),
+  CONSTRAINT `fk1` FOREIGN KEY (`localization_model_id`) REFERENCES `ai_model` (`id`),
+  CONSTRAINT `fk2` FOREIGN KEY (`location_id`) REFERENCES `location` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk3` FOREIGN KEY (`image_id`) REFERENCES `pcb_image` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `models_rating` (
+  `classification_model_id` int(11) NOT NULL,
+  `localization_model_id` int(11) NOT NULL,
+  `rating` decimal(3,1) NOT NULL
+);
